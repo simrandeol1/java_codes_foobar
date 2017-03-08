@@ -11,15 +11,11 @@ import java.io.InputStreamReader;
 public class lab8 {
     
     static class bnode {
-        
         bnode left;
         bnode right;
         int data  ;
-       
-       int[] arr = new int[10000];
-       
-       static int top = -1;
-              bnode(int x){
+        static int top = -1;
+        bnode(int x){
             left = null ;
             right = null;
             data = x;
@@ -39,9 +35,9 @@ public class lab8 {
             this.data = x;
         }
     }
-    static bnode pre=null;
-    static int[] levels  = new int[1000];
-    static int counter = -1;
+    // static int[] levels  = new int[10000];
+    //static int counter = -1;
+    //function for inserting nodes into a bst
     static void insert(bnode root , int x){
         if(root.left==null && x<root.data){
             bnode next = new bnode(x);
@@ -60,123 +56,94 @@ public class lab8 {
             }
         }
     }
-    
+    //function for printing preorder traversal of the bst
     static void print(bnode root){
-    if (root!=null){
-        System.out.print(root.data);
-        System.out.print(" ");
-        print(root.left);
-        print(root.right);
-        
+        if (root!=null){
+            System.out.print(root.data);
+            System.out.print(" ");
+            print(root.left);
+            print(root.right);
+        }
     }
-    }
-    
+    //function for calculating the height of the tree
     static int height(bnode root){
         if (root == null)
             return 0;
         else
             return 1 + Math.max(height(root.right), height(root.left));
     }
-    
+    // function to make the tree
     static bnode make(int[] x){
-        
         int length = x.length;
         bnode root = new bnode(x[0]);
-        
         for (int i=1;i<length;i++){
-            
             insert(root,x[i]);
         }
         return root;
     } 
-    static void DeleteNode(int x , bnode root){
-        
+    //function to find the min node on a bst
+    static bnode minnode(bnode root){
+        if(root.left == null){
+            return root;
+        }
+        else {
+            return minnode(root.left);
+        }
+    }
+    //function to delete a node with data as x
+    static bnode DeleteNode(int x , bnode root){
+        if(root==null)
+            return null;
         if(x<root.data){
-            pre = root;
-            DeleteNode(x , root.left);
-            
-        }
+            root.left = DeleteNode(x , root.left);
+            }
         else if (x>root.data){
-            pre=root;
-            DeleteNode(x , root.right);
+            root.right = DeleteNode(x , root.right);
         }
         else {
-           
-            if(root.right!=null && root.left!=null){
-            
-            bnode pointer = root.right;
-            bnode previous = null;
-            if (pointer.left == null){
-                root.data = pointer.data;
-                root.right = pointer.right;
+           if(root.right!=null && root.left!=null){
+                bnode temp=root;
+                bnode minright = minnode(temp.right);
+                root.data=minright.data;
+                root.right = DeleteNode(minright.data,root.right);
             }
-            else{
-                while (pointer.left!=null){
-                    previous = pointer;
-                    pointer = pointer.left;
-                    
-                }
-                root.setdata(pointer.data);
-                previous.left=null;
+            else if ( root.left!=null ){
+                root = root.left ;
             }
+            else if (root.right != null){
+                root = root.right;
             }
-            else if (root.right==null && root.left==null ){
-                if(pre!=null){
-                    if(pre.data>root.data){
-                        pre.left=null;
-                    }
-                    else
-                        pre.right=null;}
-                else {
-                    root = null;
-                }
-            }
-            else if (root.right == null){
-                if(pre.data>root.data){
-                    pre.left=root.left;
-                }
-                else
-                    pre.right=root.left;}
             else
-                {
-                if(pre.data>root.data){
-                    pre.left=root.right;
-                }
-                else
-                    pre.right=root.right ;}
-        }
-        pre=null;
-            
+                root = null;
+            }
+        return root;
     }
+    //function to find the max value at any given level of the bst
     static int maxatlevel(bnode root, int level){
-        
-    
-        if (level == 1){
-            levels[counter+1] = root.data;
-            counter++;
-        }
-        else {
-            if(root.left!=null)
-            maxatlevel(root.left,level-1);
-            if(root.right!=null)
-            maxatlevel(root.right,level-1);
-        }
-        int x = levels[counter];
-        
-        return x;
-    
-     
-    }
-    
-       
-    static void PrintProfile(bnode root){
-        
-      for (int i=1;i<=height(root);i++){
-          System.out.print(maxatlevel(root,i)+ " ");
+        if (root!=null){
+            if (level == 1){
+                return root.data;
+            
+            }
+            else {
           
-      }   
-      System.out.println();
+                int h = maxatlevel(root.left,level-1);
+                int o = maxatlevel(root.right,level-1);
+            return Math.max(h,o);
+           }
+       
+        }
+        return 0;
     }
+    //function for returning the right profile of a bst
+    static void PrintProfile(bnode root){
+       int h = height(root); 
+       for (int i=1;i<=h;i++){
+        
+          System.out.print(maxatlevel(root,i)+ " ");
+          }   
+      System.out.println();
+     }
     
     public static void main(String[] args) throws IOException{
        
@@ -190,22 +157,14 @@ public class lab8 {
            tree[i] = Integer.parseInt(entry[i]);
        }
        bnode bst = make(tree);
-       
        for (int j=0;j<cases;j++){
            String[] test = reader.readLine().split(" ");
            if (Integer.parseInt(test[0])==2){
                PrintProfile(bst);
            }
            else {
-               if (height(bst)==1){
-                   bst = null;
-               }
-               else 
-                   DeleteNode(Integer.parseInt(test[1]),bst);
+              bst = DeleteNode(Integer.parseInt(test[1]),bst);
+              }
            }
-           
-       }
-        
-         
-    }
+        }
 }
