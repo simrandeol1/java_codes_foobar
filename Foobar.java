@@ -1,6 +1,6 @@
 import java.util.Scanner;
 //Scanner tatti tool hai buffered reader use kar. 
-
+//han sahi baat
 public class foobar {
     public static int occ(char charac , String word ){
     int x =0;
